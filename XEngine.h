@@ -43,7 +43,7 @@ typedef D2D_RECT_F RECTF;
 typedef D2D1_ELLIPSE ELLIPSEF;
 typedef void (*Func)();
 typedef void (*Func2)(double);
-struct sGamePhase {
+struct GamePhase {
 	Func _create_;//程序启动时
 	Func _load_;//进入阶段
 	Func _init_;//主动初始化
@@ -55,7 +55,21 @@ struct sGamePhase {
 		_create_ = create; _load_ = load; _init_ = init; _update_ = update;
 		_render_ = render; _leave_ = leave; _destroy_ = destroy;
 	}
+
+	static GamePhase* _currentPhase;
+	static void StartFromPhase(GamePhase* phase) {
+		GamePhase::_currentPhase = phase;
+		GamePhase::_currentPhase->_load_();
+		GamePhase::_currentPhase->_init_();
+	}
+	static void SwitchToPhase(GamePhase* phase, bool init) {
+		GamePhase::_currentPhase->_leave_();
+		GamePhase::_currentPhase = phase;
+		GamePhase::_currentPhase->_load_();
+		if (init)GamePhase::_currentPhase->_init_();
+	}
 };
+
 struct sXKeyState {
 	bool bPushed = false;
 	bool bHeld = false;
@@ -263,9 +277,7 @@ extern POINTD mousePositionScene;
 extern ID2D1DeviceContext* _d2dDeviceContext;
 extern IWICImagingFactory* _wicFactory;
 void ClientInit();
-void ClientUpdate(double dt);
-void ClientRender();
-void EngineRun(PCWSTR wndname);//准备好上面三个函数，运行引擎
+void EngineRun(PCWSTR wndname);//准备好上面的函数，运行引擎
 
 void LoadPng(const wchar_t* filepath, ID2D1Bitmap** ppd2dpng);
 void LoadPng_ReverseFrom(ID2D1Bitmap* source, ID2D1Bitmap** ppd2dpng);

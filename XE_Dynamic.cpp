@@ -186,8 +186,6 @@ void EngineRun(PCWSTR wndname) {
 	for (int i = 0; i < 256; ++i) key2[i] = &(key[i]);
 	for (int i = 0; i < 8; ++i) key2[i + 256] = &(mouseKey[i]);
 
-	ClientInit();
-
 	//置计时器
 	LARGE_INTEGER t;
 	QueryPerformanceFrequency(&t);
@@ -199,7 +197,8 @@ void EngineRun(PCWSTR wndname) {
 
 	ShowWindow(hwnd, SW_SHOW);//显示窗口
 	SetFocus(hwnd);//聚焦窗口
-
+	///////////////////////////////////////
+	ClientInit();
 	MSG msg{};//准备接收消息
 	while (msg.message != WM_QUIT) {
 		if (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE)) DispatchMessage(&msg);
@@ -211,12 +210,12 @@ void EngineRun(PCWSTR wndname) {
 			//=========update逻辑刷新=========
 			UpdateInput();
 			long long dtick = currentCallToUpdate_ - lastCallToUpdate_;
-			ClientUpdate((double)dtick / frequency1000_);
+			GamePhase::_currentPhase->_update_((double)dtick / frequency1000_);
 			SetKeyState_EndFrame();
 			////=========Render图像渲染=========
 			_d2dDeviceContext->SetTarget(_d2dBitmap1Temp);
 			_d2dDeviceContext->BeginDraw();
-			ClientRender();
+			GamePhase::_currentPhase->_render_();
 			_d2dDeviceContext->EndDraw();
 
 			_d2dDeviceContext->SetTarget(_d2dBitmap1Dxgi);

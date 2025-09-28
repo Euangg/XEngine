@@ -1,4 +1,5 @@
 #include "XEngine.h"
+GamePhase* GamePhase::_currentPhase{ nullptr };
 sI18nString::eLan sI18nString::eLan_ = sI18nString::LAN_EN;
 
 double RECTDS::L()const { return x_; }
